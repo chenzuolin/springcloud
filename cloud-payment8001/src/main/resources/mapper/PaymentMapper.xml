@@ -1,0 +1,22 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sumeng.springcloud.mapper.PaymentMapper">
+
+    <resultMap id="paymentMap" type="Payment">
+        <result property="id" column="id"/>
+        <result property="serial" column="serial"/>
+    </resultMap>
+    <insert id="inster" parameterType="Payment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO payment(serial) values (#{serial})
+    </insert>
+
+    <select id="gatPaymentById" parameterType="Integer" resultMap="paymentMap">
+        select * from payment where id=#{id}
+    </select>
+    
+    <select id="getList" resultMap="paymentMap">
+        select * from payment;
+    </select>
+</mapper>
