@@ -2,7 +2,10 @@ package com.sumeng.springcloud.controller;
 
 import com.sumeng.springcloud.entity.Payment;
 import com.sumeng.springcloud.jsonresult.JsonResult;
+import com.sumeng.springcloud.lb.LoadBalancer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.net.URI;
+import java.util.List;
 
 /**
  * @author chenzuolin
@@ -24,6 +29,12 @@ public class OrderController {
 
     @Resource
     private RestTemplate restTemplate;
+
+    @Resource
+    private LoadBalancer loadBalancer;
+
+    @Resource
+    private DiscoveryClient discoveryClient;
 
     @GetMapping("/consumer/payment/create")
     public JsonResult<Payment> create(Payment payment){
@@ -53,5 +64,16 @@ public class OrderController {
         }else {
             return  new JsonResult<>(500,"操作失败！！！");
         }
+    }
+
+    @GetMapping("/consumer/payment/lb")
+    public String getPaymentLB(){
+        List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+        if (instances == null || instances.size() <= 0){
+            return null;
+        }
+        ServiceInstance instance = loadBalancer.instance(instances);
+        URI uri = instance.getUri();
+        return restTemplate.getForObject(uri+"/payment/lb",String.class);
     }
 }

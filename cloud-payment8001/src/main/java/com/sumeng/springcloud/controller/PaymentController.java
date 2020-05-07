@@ -73,4 +73,9 @@ public class PaymentController {
         });
         return new JsonResult(200,"success,serverPort:"+serverPort,discoveryClient);
     }
+
+    @GetMapping("/payment/lb")
+    public String getPaymentLB(){
+        return serverPort;
+    }
 }
